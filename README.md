@@ -16,3 +16,7 @@ I made lots of progress, learned about how to navigate through HTML elements wit
 --- 
 ### Day 4
 I made a plan to fix the download time for all of the stations. Selenium has a headless mode that supposedly speeds things up, and I can disable images as well. I can also do some multiprocessing to improve speed. I'll test each of these strategies tomorrow. 
+
+--- 
+### Day 5
+I used headless mode and disabled images which substantially improved performance. I used benchmarking to determine the time it took to download data for each station. When there was data it took around 1.5 seconds. When there was not data it took around 7 seconds. That is partially because I make sure it waits 5 seconds if it cannot find the discharge data. I think I can bring that time down to improve it. I also should just get rid of the stations that don't have discharge data. Right now, if 1/5 of the stations don't have discharge data, and there are 2164 stations, it will take around an hour and a half to download the data. I can for sure improve it to under an hour, whether that means reducing the wait time for stations without data, or not reading those stations at all. I still haven't explored multiprocessing either. Lots to improve on. 
