@@ -17,6 +17,8 @@ driver = webdriver.Chrome(options=chrome_options)
 station_ids = []
 stations_with_no_data = []
 
+total_start = timeit.default_timer()
+
 # Reads station IDs from a text file and stores them in a list
 with open ('stations.txt', 'r') as f:
     for station_id in f: 
@@ -41,13 +43,22 @@ except TimeoutException:
 try:
     # Finds the csv discharge link and clicks it
     # Note: The XPATH may need to be adjusted if the structure of the page changes
+    correct_page = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(), "Discharge (unit values)")]')))
+
     correct_main = driver.find_element(By.XPATH, '//main[@property="mainContentOfPage"]')
     correct_div = correct_main.find_element(By.XPATH, './div[2]')
-    correct_section = correct_div.find_element(By.XPATH, './section[2]')
-    discharge_link = correct_section.find_element(By.XPATH, './/a[contains(@href, "report_e.html") and contains(@href, "df=csv")]')
-    discharge_link.click()
-    elapsed = timeit.default_timer() - start
-    print(f'Found data for station: {station_ids[0]}, {elapsed}')
+    correct_header = correct_div.find_element(By.XPATH, './/h2[contains(text(), "Discharge (unit values)")]')
+    following_div = correct_header.find_element(By.XPATH, './following-sibling::div')
+    try: 
+        discharge_link = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')))
+        # discharge_link = following_div.find_element(By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')
+        discharge_link.click()
+        elapsed = timeit.default_timer() - start 
+        print(f'Found data for station: {station_ids[0]}, {elapsed}')
+    except TimeoutException: 
+        elapsed = timeit.default_timer() - start 
+        print(f'Cannot find discharge data for station: {station_ids[0]}, {elapsed}')
+        stations_with_no_data.append(station_ids[0])
 except TimeoutException:
     elapsed = timeit.default_timer() - start
     print(f'Cannot find discharge data for station: {station_ids[0]}, {elapsed}')
@@ -75,19 +86,36 @@ for i in range(1, len(station_ids)):
     try: 
         # Finds the csv discharge link and clicks it
         # Note: The XPATH may need to be adjusted if the structure of the page changes
-        correct_section = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(), "Discharge (unit values)")]')))
+        correct_page = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '//*[contains(text(), "Discharge (unit values)")]')))
 
         correct_main = driver.find_element(By.XPATH, '//main[@property="mainContentOfPage"]')
         correct_div = correct_main.find_element(By.XPATH, './div[2]')
-        correct_section = correct_div.find_element(By.XPATH, './section[2]')
-        discharge_link = correct_section.find_element(By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')
-        discharge_link.click()
-        elapsed = timeit.default_timer() - start
-        print(f'Found data for station: {station_ids[i]}, {elapsed}')
+        correct_header = correct_div.find_element(By.XPATH, './/h2[contains(text(), "Discharge (unit values)")]')
+        following_div = correct_header.find_element(By.XPATH, './following-sibling::div')
+        try: 
+            discharge_link = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')))
+            # discharge_link = following_div.find_element(By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')
+            discharge_link.click()
+            elapsed = timeit.default_timer() - start 
+            print(f'Found data for station: {station_ids[i]}, {elapsed}')
+        except TimeoutException: 
+            elapsed = timeit.default_timer() - start 
+            print(f'Cannot find discharge data for station: {station_ids[i]}, {elapsed}')
+            stations_with_no_data.append(station_ids[i])
+
+        
     except TimeoutException:
         elapsed = timeit.default_timer() - start
         print(f'Cannot find discharge data for station: {station_ids[i]}, {elapsed}')
         stations_with_no_data.append(station_ids[i])
         continue    
 
-driver.close()
+
+with open ('no_station_data.txt', 'w') as f:
+    for station in stations_with_no_data: 
+        f.write(f'{station}\n')
+
+total_elapsed = timeit.default_timer() - total_start
+print(f'Total time elapsed: {total_elapsed}')
+
+driver.quit()
