@@ -24,3 +24,7 @@ I used headless mode and disabled images which substantially improved performanc
 ---
 ### Day 6
 I ran the script on all of the stations. This revealed some errors within the code. I fixed them and ran the script fully. Recording the stations without data did not go as planned. I fixed the code after running it, so I'll test it tomorrow and get the full picture of how many stations don't have discharge data. It took about 1 hour and 10 minutes to run including stations without discharge data, which is good news. With some improvements I can have it to well under an hour. 
+
+--- 
+### Day 7
+I made some updates to the code, removed redundancies. I ran the script fully again, this time recording the stations without data. There are 469 stations without discharge data. I can remove these from the station list to make the scraper run quicker. I now need to deal with the csv data. 
