@@ -1,6 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -13,6 +12,7 @@ import tempfile
 with tempfile.TemporaryDirectory() as download_directory:
     
     print(f'Download directory: {download_directory}')
+    
     # Running in headless mode and disabling images to speed up the process
     chrome_options = Options()
     chrome_options.add_argument('--headless=new')
@@ -24,7 +24,10 @@ with tempfile.TemporaryDirectory() as download_directory:
     prefs = {'profile.managed_default_content_settings.images': 2, 'download.prompt_for_download': False, 'download.directory_upgrade': True, 'download.default_directory': download_directory }
     chrome_options.add_experimental_option('prefs', prefs)  
 
+    # Initializing the WebDriver
     driver = webdriver.Chrome(options=chrome_options)
+
+    # Initializing lists that will hold relevant station information
     station_ids = []
     stations_with_no_data = []
 
@@ -36,6 +39,7 @@ with tempfile.TemporaryDirectory() as download_directory:
             station_ids.append(station_id.strip())
 
     start = timeit.default_timer()
+
     # Navigates to the first station's page, which requires agreement to a disclaimer
     driver.get(f'https://wateroffice.ec.gc.ca/report/real_time_e.html?stn={station_ids[0]}')
     # Finds the agreement button and clicks it        
@@ -61,7 +65,6 @@ with tempfile.TemporaryDirectory() as download_directory:
         correct_header = correct_div.find_element(By.XPATH, './/h2[contains(text(), "Discharge (unit values)")]')
         following_div = correct_header.find_element(By.XPATH, './following-sibling::div')
         discharge_link = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')))
-        # discharge_link = following_div.find_element(By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')
         discharge_link.click()
         elapsed = timeit.default_timer() - start 
         print(f'Found data for station: {station_ids[0]}, {elapsed}')
@@ -89,7 +92,6 @@ with tempfile.TemporaryDirectory() as download_directory:
             print(f'Cannot find download link for station: {station_ids[i]}, {elapsed}')
             continue
         
-        # In case there isn't data for the discharge, we check for the presence of the discharge header
         try: 
             # Finds the csv discharge link and clicks it
             # Note: The XPATH may need to be adjusted if the structure of the page changes
@@ -100,18 +102,15 @@ with tempfile.TemporaryDirectory() as download_directory:
             correct_header = correct_div.find_element(By.XPATH, './/h2[contains(text(), "Discharge (unit values)")]')
             following_div = correct_header.find_element(By.XPATH, './following-sibling::div') 
             discharge_link = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')))
-            # discharge_link = following_div.find_element(By.XPATH, './/a[@href="/download/report_e.html?dt=47&df=csv&ext=zip"]')
             discharge_link.click()
             elapsed = timeit.default_timer() - start 
             print(f'Found data for station: {station_ids[i]}, {elapsed}')
 
-            
         except TimeoutException:
             elapsed = timeit.default_timer() - start
             print(f'Cannot find discharge data for station: {station_ids[i]}, {elapsed}')
             stations_with_no_data.append(station_ids[i])
             continue    
-
 
     with open ('no_station_data.txt', 'w') as f:
         for station in stations_with_no_data: 
