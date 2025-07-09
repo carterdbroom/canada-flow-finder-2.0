@@ -28,3 +28,11 @@ I ran the script on all of the stations. This revealed some errors within the co
 --- 
 ### Day 7
 I made some updates to the code, removed redundancies. I ran the script fully again, this time recording the stations without data. There are 469 stations without discharge data. I can remove these from the station list to make the scraper run quicker. I now need to deal with the csv data. 
+
+--- 
+### Day 8
+Started research on Flask and started implementing some of the backend code. Most of the time I spent was reading the documentation, but I did start coding a bit. 
+
+---
+### Day 9
+Started connecting the scraper to the backend, using threads to make it repeatedly run in the background. I changed the how the temporary directory will operate. It will be stored in the same directory as the scripts. I needed to know the location of the temporary directory between both the scraper.py file and the app.py file, so I stored it in a known location. I also started the rough code for reading the zipped csv files. Tomorrow I should finish handling the csv files and starting writing data to the sqlite database. 
