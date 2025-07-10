@@ -128,3 +128,5 @@ def scraper():
         if os.path.exists(TEMP_DIRECTORY): 
             shutil.rmtree(TEMP_DIRECTORY)
             print("Deleted directory")
+
+scraper()

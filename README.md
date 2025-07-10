@@ -36,3 +36,7 @@ Started research on Flask and started implementing some of the backend code. Mos
 ---
 ### Day 9
 Started connecting the scraper to the backend, using threads to make it repeatedly run in the background. I changed the how the temporary directory will operate. It will be stored in the same directory as the scripts. I needed to know the location of the temporary directory between both the scraper.py file and the app.py file, so I stored it in a known location. I also started the rough code for reading the zipped csv files. Tomorrow I should finish handling the csv files and starting writing data to the sqlite database. 
+
+---
+### Day 10
+I created the models/schemas for the database. I created a table that will hold the favourites of a user, and created a table that will hold the station data from the csv files. 

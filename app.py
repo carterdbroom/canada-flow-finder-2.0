@@ -5,15 +5,31 @@ import scraper
 import os
 import pandas as pd
 import zipfile
+from flask_sqlalchemy import SQLAlchemy
+import datetime
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIRECTORY = os.path.join(CURRENT_DIRECTORY, 'temp_dir')
 
 app = Flask(__name__)
+# Add the database to our app
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///.db'
 
-@app.route("/")
-def hello_world():
-    return "<p> Hello, World!</p>"
+# Initializing the database
+db = SQLAlchemy(app)
+
+# Database schemas
+# This table will hold all of the latest station data that is found in the csv files 
+class StationData(db.Model):
+    station_id = db.Column(db.String(7), primary_key=True)
+    station_name = db.Column(db.String(200), unique=True, nullable=False)
+    province = db.Column(db.String(2), nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    discharge_value = db.Column(db.Float)
+
+# This table will hold the IDs of the stations that they have chosen as favourites
+class Favourite(db.Model):
+    station_id = db.Column(db.String(7), primary_key=True)
 
 # /
 # /search
